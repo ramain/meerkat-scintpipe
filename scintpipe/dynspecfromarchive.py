@@ -132,8 +132,11 @@ def main(raw_args=None):
     dynspec = dtools.create_dynspec(fs_clean, template=template)
     dyn_clean = dynspec * mask
     
+    # Currently hardcoded for TPA sources to have identical 928 channels, 
+    # better would be to specify frequency range
     if dyn_clean.shape[1] == 1024:
         dyn_clean = dyn_clean[:, 48:-48]
+        F = F[48:-48]
     
     Funits = F*u.MHz
     Tunits = T[0] + np.arange(dyn_clean.shape[0])*dt*u.s
