@@ -133,7 +133,7 @@ def main(raw_args=None):
     dyn_clean = dynspec * mask
     
     if dyn_clean.shape[1] == 1024:
-        dyn_clean = ds_filtered[:, 48:-48]
+        dyn_clean = dyn_clean[:, 48:-48]
     
     Funits = F*u.MHz
     Tunits = T[0] + np.arange(dyn_clean.shape[0])*dt*u.s
