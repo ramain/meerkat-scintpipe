@@ -3,6 +3,8 @@ import astropy.units as u
 from astropy.io import fits
 from astropy.time import Time
 
+import matplotlib
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 
 from .slowft import slow_FT

@@ -8,6 +8,8 @@ from astropy.coordinates import ICRS, Galactic, FK4, FK5
 
 from scipy.ndimage.filters import gaussian_filter
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 
 import scintillation.dynspectools.slowft as slowft
