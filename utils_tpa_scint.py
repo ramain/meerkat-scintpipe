@@ -3,6 +3,7 @@
 import os,sys,shlex,glob,subprocess,argparse
 import numpy as np
 from shutil import copyfile, rmtree
+import time
 
 
 def parse_config(path_cfile):
@@ -34,5 +35,37 @@ def parse_config(path_cfile):
     
     return config_params
 
+def run_scintpipe(cleaned_archive,output_psr_utc_path,psrname,utcname,config_params,soft_path,job_type):
+
+    if job_type == "slurm":
+
+        command = "python ScintPipeline.py -archivefile {0} -outdir {1}".format(cleaned_archive,output_psr_utc_path)
+        job_name = "Scint_{0}_{1}.bash".format(psrname,utcname)
+        with open(os.path.join(output_psr_utc_path,str(job_name)),'w') as job_file:
+            job_file.write("#!/bin/bash \n")
+            job_file.write("#SBATCH --job-name=Scint_{0}_{1} \n".format(psrname,utcname))
+            job_file.write("#SBATCH --output={0}/ScintPipe_{1}_{2}.out \n".format(output_psr_utc_path,psrname,utcname))
+            job_file.write("#SBATCH --ntasks={0} \n".format(config_params["tasks"]))
+            job_file.write("#SBATCH --mem={0} \n".format(config_params["ram"]))
+            job_file.write("#SBATCH --time={0} \n".format(config_params["time"]))
+            job_file.write("#SBATCH --mail-type=FAIL --mail-user={0} \n".format(config_params["mail"]))
+            job_file.write('cd {0} \n'.format(soft_path))
+            job_file.write('{0}'.format(command))
+
+        print ("Slurm job - {0} created".format(job_name))
+
+        print ("Deploying {0}".format(job_name))
+        com_sbatch = 'sbatch {0}'.format(os.path.join(output_psr_utc_path,str(job_name)))
+        args_sbatch = shlex.split(com_sbatch)
+        proc_sbatch = subprocess.Popen(args_sbatch)
+        time.sleep(1)
+        print("{0} deployed.".format(job_name))
+
+    elif job_type == "direct":
+        
+        print ("Launching scintillation pipeline for {0}:{1}".format(psrname,utcname))
+        command = "python {0}/ScintPipeline.py -archivefile {1} -outdir {2}".format(soft_path,cleaned_archive,output_psr_utc_path)
+        args_pipe = shlex.split(command)
+        proc_pipe = subprocess.call(args_pipe)
 
 
