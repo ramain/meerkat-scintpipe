@@ -12,13 +12,15 @@ parser.add_argument("-psr", dest="psrname", help="Update the pngs for the specif
 parser.add_argument("-utc", dest="utc", help="Update the pngs for the specific utc")
 parser.add_argument("-list", dest="list", help="Use the pulsar-utc list")
 parser.add_argument("-class", dest="classes", help="Classification list",required=True)
+parser.add_argument("-usersummary", dest="usersummary", help="List of comments per pulsar", required=True)
 args = parser.parse_args()
 
 
 scint_path = args.path
 
-summary_file = os.path.join(scint_path,"usersummary.txt")
-user_summary = pd.read_csv(summary_file,names=["psrname","comments"],delimiter=":",dtype=str)
+if args.usersummary:
+    summary_file = args.usersummary
+    user_summary = pd.read_csv(summary_file,names=["psrname","comments"],delimiter=":",dtype=str)
 
 if args.list:
     psr_utc_df = pd.read_csv(str(args.list), delimiter=" ", header=None, dtype=str, comment="#",names=["psrname","utc"])
