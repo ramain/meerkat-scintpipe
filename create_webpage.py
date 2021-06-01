@@ -157,11 +157,13 @@ for index, row in class0_pulsars.iterrows():
     comment = user_summary.loc[user_summary['psrname'] == psrname]["comments"].tolist()
     if not len(comment) == 0:
         comment = comment[0]
-        class0_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))        
+        class0_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment)) 
     else:
         comment = "None"
         class0_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
           
+    
+    class0_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname)) 
     class0_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class0_file.close()
@@ -183,6 +185,7 @@ for index, row in class1_pulsars.iterrows():
         comment = "None"
         class1_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
           
+    class1_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname)) 
     class1_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class1_file.close()
@@ -203,7 +206,8 @@ for index, row in class2_pulsars.iterrows():
     else:
         comment = "None"
         class2_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
-          
+    
+    class2_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname)) 
     class2_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class2_file.close()
@@ -224,7 +228,8 @@ for index, row in class3_pulsars.iterrows():
     else:
         comment = "None"
         class3_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
-          
+     
+    class3_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname))     
     class3_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class3_file.close()
@@ -247,6 +252,7 @@ for index, row in class4_pulsars.iterrows():
         comment = "None"
         class4_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
           
+    class4_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname)) 
     class4_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class4_file.close()
@@ -270,6 +276,7 @@ for index, row in class5_pulsars.iterrows():
         comment = "None"
         class5_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
           
+    class5_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname)) 
     class5_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class5_file.close()
@@ -292,6 +299,7 @@ for index, row in class6_pulsars.iterrows():
         comment = "None"
         class6_file.write('<tr><td align=left><font size=+2>{0} - {1} - Comments: {2}<br></font></td></tr> \n'.format(psrname,obsname,comment))           
           
+    class6_file.write('<tr><td><a href="https://www.atnf.csiro.au/people/joh414/meerkat/{0}.html"><font size=+1>View fold-mode data</font></a></td></tr> \n'.format(psrname)) 
     class6_file.write('<tr><td><img src="png_summary/{0}" width="2600" height="1000" </td></tr> \n'.format(image_name))            
 
 class6_file.close()
