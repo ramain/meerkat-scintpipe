@@ -28,8 +28,11 @@ else:
     if args.list:
         obs_list = []
         for index, row in psr_utc_df.iterrows():
-            psr_utc_path = os.path.join(os.path.join(config_params["input_path"],row["psrname"]),row["utc"])
-            obs_list.append(psr_utc_path)
+            psr_path = os.path.join(config_params["input_path"],row["psrname"])
+            psr_utc_path = glob.glob(os.path.join(psr_path,"{0}*".format(row["utc"])))
+            print (psr_utc_path)
+            obs_list.append(psr_utc_path[0])
+
     else:
         obs_list = sorted(glob.glob(os.path.join(config_params["input_path"],"{0}/2*".format(args.psrname))))
 
@@ -60,7 +63,7 @@ else:
             os.makedirs(output_psr_utc_path)
         output_psr_utc_list.append(output_psr_utc_path)
         print ("Output directories created for {0}:{1}".format(psrname,utcname))
-      q
+
 #Obtaining the cleaned archive
 if args.utc:
     cleaned_archive = glob.glob(os.path.join(obs_path,"*/*/cleaned/*.ar"))
