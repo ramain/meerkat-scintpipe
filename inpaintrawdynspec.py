@@ -141,7 +141,7 @@ def main(raw_args=None):
     parser = argparse.ArgumentParser(description='Inpaint Dynamic Spectra using Wiener Filter')
     parser.add_argument("-fname",  type=str)
     #parser.add_argument("-nt", default=1, type=int)
-    parser.add_argument("-tsize", default=150, type=int)
+    parser.add_argument("-tsize", default=180, type=int)
     parser.add_argument("-nf", default=8, type=int)
     #parser.add_argument("-bpass", default=False, action='store_true')
     parser.add_argument("-intrinsic", default=False, action='store_true')
@@ -160,8 +160,8 @@ def main(raw_args=None):
     if verbose:
         print("Opening {0}".format(infile))
     dynspec, dserr, t, F, psrname = dtools.read_psrflux(infile)
-    ntchunk = int(dynspec.shape[0]//tsize)
-    ntchunk = np.max([1, ntchunk])
+    ntchunk = int(dynspec.shape[0]//tsize) + 1
+    #ntchunk = np.max([1, ntchunk])
 
     prefix = infile.split("dynspec")[0]
     psrfluxname = prefix + 'filtered.dynspec'

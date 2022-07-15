@@ -20,7 +20,7 @@ def main(raw_args=None):
         import dynspecfromarchive
         import inpaintrawdynspec
         rawdynspecfile = dynspecfromarchive.main(['-fname', '{0}'.format(archivefile), '-outdir', '{0}'.format(outdir)])
-        dynspecfile = inpaintrawdynspec.main(['-fname', '{0}'.format(rawdynspecfile), '-tsize', '150', '-nf', '8', '-intrinsic'])
+        dynspecfile = inpaintrawdynspec.main(['-fname', '{0}'.format(rawdynspecfile), '-tsize', '180', '-nf', '8', '-intrinsic'])
         
     plotprefix = scintparsfromdynspec.main(['-fname', '{0}'.format(dynspecfile), '-outdir', '{0}'.format(outdir)])
     
