@@ -8,8 +8,6 @@ from astropy.coordinates import ICRS, Galactic, FK4, FK5
 
 from scipy.ndimage.filters import gaussian_filter
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 
 import scintillation.dynspectools.slowft as slowft
@@ -127,16 +125,22 @@ def main(raw_args=None):
     dt = T[1].unix - T[0].unix
     
     foldspec, flag, mask, bg, bpass = dtools.clean_foldspec(I, plots=True, 
-                                     apply_mask=False, rfimethod='var', 
+                                     apply_mask=True, rfimethod='var', 
                                      flagval=6, offpulse='True', tolerance=0.6)
     fs_clean = foldspec * mask[...,np.newaxis]
     template = fs_clean.mean(0).mean(0)
     dynspec = dtools.create_dynspec(fs_clean, template=template)
-    dyn_clean = dynspec * mask
+    dynspec_off = dtools.create_dynspec(fs_clean, template=np.roll(template, len(template)//2) )
     
+    norm = np.mean(dynspec)
+    dyn_clean = dynspec / norm
+    dynspec_off = dynspec_off / norm
+
+    # Currently hardcoded for TPA sources to have identical 928 channels, 
+    # better would be to specify frequency range
     if dyn_clean.shape[1] == 1024:
         dyn_clean = dyn_clean[:, 48:-48]
-        F=F[48:-48]
+        F = F[48:-48]
     
     Funits = F*u.MHz
     Tunits = T[0] + np.arange(dyn_clean.shape[0])*dt*u.s
@@ -151,7 +155,7 @@ def main(raw_args=None):
     print(plotname)
     plt.savefig('{0}_diagnostic.png'.format(plotname))
     
-    dtools.write_psrflux(dyn_clean, np.ones_like(dyn_clean), 
+    dtools.write_psrflux(dyn_clean, dynspec_off, 
                            Funits, Tunits, psrfluxname, psrname=psrname,
                            note=note)
     return psrfluxname

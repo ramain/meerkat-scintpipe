@@ -6,8 +6,6 @@ from astropy.time import Time
 from astropy.constants import c
 
 from scipy.ndimage.filters import gaussian_filter, median_filter
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import scintillation.dynspectools.slowft as slowft
@@ -537,9 +535,10 @@ def main(raw_args=None):
     
     Tunits = Time(T)
     Tunits = (Tunits.unix - Tunits[0].unix)*u.s
-    
+    dt = Tunits[2] - Tunits[1]
+
     # Plot secspec using full band
-    CS, ft, tau = plot_secspec(ds_filtered, F, t0, dt=8*u.s, vm=4., sft=False, aspect=(12,12),
+    CS, ft, tau = plot_secspec(ds_filtered, F, t0, dt=dt, vm=4., sft=False, aspect=(10,10),
                                plot_title=True, psrname=psrname)
     plt.tight_layout()
     plt.savefig('{0}_fulldyn.png'.format(prefix), dpi=res)
@@ -558,101 +557,101 @@ def main(raw_args=None):
     for frange in [frange1, frange2]:
         Fmed = np.mean(F[frange])
         #curv = normcurv * (Fmed/fref)**-2.0
-        CS, ft, tau, Snorm, ftnormaxis, curvaxis = plot_secspec(
-                        ds_filtered[:,frange], F[frange], t0, dt=8*u.s, 
+        CS, ft, tau = plot_secspec(
+                        ds_filtered[:,frange], F[frange], t0, dt=dt, 
                         bintau=1, binft=1, vm=4., sft=False, 
-                        aspect=(10,6), normS=1) #curv=curv
+                        aspect=(8,5), normS=0) #curv=curv
         plt.tight_layout()
         plt.savefig('{0}_dyn_{1}.png'.format(prefix, int(Fmed)), dpi=res)
     
-        tscint, tscinterr, nuscint, nuscinterr, grad, graderr, maxes = fitCorr(
-            ds_filtered[:,frange]/bpass_smooth[frange], F[frange], fit='2D')
-        plt.tight_layout()
-        plt.savefig('{0}_2Dacf_{1}.png'.format(prefix, int(Fmed)), dpi=res)
+        #tscint, tscinterr, nuscint, nuscinterr, grad, graderr, maxes = fitCorr(
+        #    ds_filtered[:,frange]/bpass_smooth[frange], F[frange], fit='2D')
+        #plt.tight_layout()
+        #plt.savefig('{0}_2Dacf_{1}.png'.format(prefix, int(Fmed)), dpi=res)
         
-        try:
-            curvavg, curverr, ftcurv, ftcurverr = fit_curvature(Snorm, ftnormaxis, tau, plot=1)
-            plot.tight_layout()
-            plt.savefig('{0}_arcfit_{1}.png'.format(prefix, int(Fmed)), dpi=res)
-        except:
-            print("Curvature fitting failed")
-            curvavg = -1
-            curverr = -1
-        fitpars_2sub[j] = np.array([Fmed, tscint, tscinterr, nuscint, nuscinterr, grad, graderr,
-                           curvavg, curverr])
-        j += 1
+        #try:
+        #    curvavg, curverr, ftcurv, ftcurverr = fit_curvature(Snorm, ftnormaxis, tau, plot=1)
+        #    plot.tight_layout()
+        #    plt.savefig('{0}_arcfit_{1}.png'.format(prefix, int(Fmed)), dpi=res)
+        #except:
+        #    print("Curvature fitting failed")
+        #    curvavg = -1
+        #    curverr = -1
+        #fitpars_2sub[j] = np.array([Fmed, tscint, tscinterr, nuscint, nuscinterr, grad, graderr,
+        #                   curvavg, curverr])
+        #j += 1
             
     # Compute scint values in 8 frequency  slices
-    tscints = np.zeros(8)
-    nuscints = np.zeros(8)
-    tscinterrs = np.zeros(8)
-    nuscinterrs = np.zeros(8)
-    modindeces = np.zeros(8)
-    Fmid = np.zeros(8)
+    #tscints = np.zeros(8)
+    #nuscints = np.zeros(8)
+    #tscinterrs = np.zeros(8)
+    #nuscinterrs = np.zeros(8)
+    #modindeces = np.zeros(8)
+    #Fmid = np.zeros(8)
     
     ### Supplement nuscint with modindex
     
-    for k in range(8):
-        frange = slice( (8-k-1)*118, (8-k)*118)
-        dynslice = ds_filtered[:,frange]/bpass_smooth[frange]
-        if k == 7:
-            plot_xlabel = 1
-        else:
-            plot_xlabel = 0
-        tscint, tscinterr, nuscint, nuscinterr, grad, graderr, maxes = fitCorr(
-            dynslice, F[frange], fit='1D', aspect=(6,1.4), plot_xlabel=plot_xlabel)
+    #for k in range(8):
+    #    frange = slice( (8-k-1)*118, (8-k)*118)
+    #    dynslice = ds_filtered[:,frange]/bpass_smooth[frange]
+    #    if k == 7:
+    #        plot_xlabel = 1
+    #    else:
+    #        plot_xlabel = 0
+    #    tscint, tscinterr, nuscint, nuscinterr, grad, graderr, maxes = fitCorr(
+    #        dynslice, F[frange], fit='1D', aspect=(6,1.4), plot_xlabel=plot_xlabel)
     
-        tscints[k] = tscint
-        tscinterrs[k] = tscinterr
-        nuscints[k] = nuscint
-        nuscinterrs[k] = nuscinterr
-        Fmid[k] = np.mean(F[frange])
-        modindeces[k] = np.std(dynslice) / np.mean(dynslice)
+    #    tscints[k] = tscint
+    #    tscinterrs[k] = tscinterr
+    #    nuscints[k] = nuscint
+    #    nuscinterrs[k] = nuscinterr
+    #    Fmid[k] = np.mean(F[frange])
+    #    modindeces[k] = np.std(dynslice) / np.mean(dynslice)
     
-        tscint = np.round(tscint, 2)
-        tscinterr = np.round(tscinterr, 2)
-        nuscint = np.round(nuscint, 2)
-        nuscinterr = np.round(nuscinterr, 2)
-        print("dt={0}+-{1}min, df={2}+-{3}MHz".format(tscint, tscinterr,
-                                                  nuscint, nuscinterr))
+    #    tscint = np.round(tscint, 2)
+    #    tscinterr = np.round(tscinterr, 2)
+    #    nuscint = np.round(nuscint, 2)
+    #    nuscinterr = np.round(nuscinterr, 2)
+    #    print("dt={0}+-{1}min, df={2}+-{3}MHz".format(tscint, tscinterr,
+    #                                              nuscint, nuscinterr))
         #plt.tight_layout()
-        if k == 7:
-            plt.gcf().subplots_adjust(bottom=0.2)
-        plt.savefig('{0}_1Dacf_{1}.png'.format(prefix, k), dpi=res)
+    #    if k == 7:
+    #        plt.gcf().subplots_adjust(bottom=0.2)
+    #    plt.savefig('{0}_1Dacf_{1}.png'.format(prefix, k), dpi=res)
         
-    plot_scintpars(Fmid, tscints, tscinterrs, nuscints, nuscinterrs)
-    plt.gcf().subplots_adjust(bottom=0.2)
-    plt.savefig('{0}_scintpars.png'.format(prefix), dpi=res)
+    #plot_scintpars(Fmid, tscints, tscinterrs, nuscints, nuscinterrs)
+    #plt.gcf().subplots_adjust(bottom=0.2)
+    #plt.savefig('{0}_scintpars.png'.format(prefix), dpi=res)
     
-    plt.figure(figsize=(6,6))
-    plt.plot()
-    plt.xlim(0,1)
-    plt.ylim(0,1)
+    #plt.figure(figsize=(6,6))
+    #plt.plot()
+    #plt.xlim(0,1)
+    #plt.ylim(0,1)
     
 
     # Print table of values
-    fitpars_print = np.around(fitpars_2sub, 3)
+    #fitpars_print = np.around(fitpars_2sub, 3)
     
-    for i in range(2):
-        offset = 0.5*i
-        plt.text(0.05, 0.42+offset, "F = {0} MHz".format(fitpars_print[i,0]), fontsize=16)
-        plt.text(0.05, 0.33+offset, r"$ t_s = {0}\pm{1}$ min".format(fitpars_print[i, 1],
-                                                                     fitpars_print[i, 2] ), fontsize=14)
-        plt.text(0.05, 0.27+offset, r"$ \nu_s = {0}\pm{1}$ MHz".format(fitpars_print[i, 3],
-                                                                       fitpars_print[i, 4] ), fontsize=14)
-        plt.text(0.05, 0.20+offset, r"$ tilt = {0}\pm{1}$ deg".format(fitpars_print[i, 5],
-                                                                      fitpars_print[i, 6] ), fontsize=14)
-        plt.text(0.05, 0.13+offset, r"$ \eta = {0}\pm{1}$ s^3".format(fitpars_print[i, 7],
-                                                                      fitpars_print[i, 8] ), fontsize=14)
-        plt.axhline(0.5, color='k')
-        plt.xticks([])
-        plt.yticks([])
-        plt.savefig('{0}_table.png'.format(prefix), dpi=res)
+    #for i in range(2):
+    #    offset = 0.5*i
+    #    plt.text(0.05, 0.42+offset, "F = {0} MHz".format(fitpars_print[i,0]), fontsize=16)
+    #    plt.text(0.05, 0.33+offset, r"$ t_s = {0}\pm{1}$ min".format(fitpars_print[i, 1],
+    #                                                                 fitpars_print[i, 2] ), fontsize=14)
+    #    plt.text(0.05, 0.27+offset, r"$ \nu_s = {0}\pm{1}$ MHz".format(fitpars_print[i, 3],
+    #                                                                   fitpars_print[i, 4] ), fontsize=14)
+    #    plt.text(0.05, 0.20+offset, r"$ tilt = {0}\pm{1}$ deg".format(fitpars_print[i, 5],
+    #                                                                  fitpars_print[i, 6] ), fontsize=14)
+    #    plt.text(0.05, 0.13+offset, r"$ \eta = {0}\pm{1}$ s^3".format(fitpars_print[i, 7],
+    #                                                                  fitpars_print[i, 8] ), fontsize=14)
+    #    plt.axhline(0.5, color='k')
+    #    plt.xticks([])
+    #    plt.yticks([])
+    #    plt.savefig('{0}_table.png'.format(prefix), dpi=res)
     
-    with open('{0}_fitpars.txt'.format(prefix), 'w') as outfile:
-        outfile.write("F, tscint, tscinterr, nuscint, nuscinterr, ACFtilt, ACFtilterr, curv, curverr \n")
-        outfile.write("{0} \n".format(fitpars_2sub[0]))
-        outfile.write("{0} \n".format(fitpars_2sub[1]))
+    #with open('{0}_fitpars.txt'.format(prefix), 'w') as outfile:
+    #    outfile.write("F, tscint, tscinterr, nuscint, nuscinterr, ACFtilt, ACFtilterr, curv, curverr \n")
+    #    outfile.write("{0} \n".format(fitpars_2sub[0]))
+    #    outfile.write("{0} \n".format(fitpars_2sub[1]))
 
     return prefix
 
