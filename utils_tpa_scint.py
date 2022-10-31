@@ -52,17 +52,26 @@ def run_scintpipe(cleaned_archive,output_psr_utc_path,psrname,utcname,config_par
                 job_file.write("#SBATCH --mem={0} \n".format(config_params["ram"]))
                 job_file.write("#SBATCH --time={0} \n".format(config_params["time"]))
                 job_file.write("#SBATCH --mail-type=FAIL --mail-user={0} \n".format(config_params["mail"]))
+
+                job_file.write("module purge \n")
+                job_file.write("module load numpy/1.16.3-python-3.6.4 \n")
+                job_file.write("module load pandas/0.22.0-python-3.6.4 \n")
+                job_file.write("module load scipy/1.3.0-python-3.6.4 \n")
+                job_file.write("module load astropy/3.1.2-python-3.6.4 \n")
+                job_file.write("module load matplotlib/2.2.2-python-3.6.4 \n")
+                job_file.write("module load psrchive/f387fd299-python-3.6.4 \n")
+
                 job_file.write('cd {0} \n'.format(soft_path))
                 job_file.write('{0}'.format(command))
 
             print ("Slurm job - {0} created".format(job_name))
 
-            print ("Deploying {0}".format(job_name))
-            com_sbatch = 'sbatch {0}'.format(os.path.join(output_psr_utc_path,str(job_name)))
-            args_sbatch = shlex.split(com_sbatch)
-            proc_sbatch = subprocess.Popen(args_sbatch)
-            time.sleep(1)
-            print("{0} deployed.".format(job_name))
+            #print ("Deploying {0}".format(job_name))
+            #com_sbatch = 'sbatch {0}'.format(os.path.join(output_psr_utc_path,str(job_name)))
+            #args_sbatch = shlex.split(com_sbatch)
+            #proc_sbatch = subprocess.Popen(args_sbatch)
+            #time.sleep(1)
+            #print("{0} deployed.".format(job_name))
 
         else:
             print ("Already processed")

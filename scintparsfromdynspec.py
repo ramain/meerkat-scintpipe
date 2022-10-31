@@ -6,6 +6,8 @@ from astropy.time import Time
 from astropy.constants import c
 
 from scipy.ndimage.filters import gaussian_filter, median_filter
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import scintillation.dynspectools.slowft as slowft

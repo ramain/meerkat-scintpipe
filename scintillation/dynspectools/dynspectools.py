@@ -1,11 +1,12 @@
 import numpy as np
-import astropy.units as u
-from astropy.io import fits
-from astropy.time import Time
-
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
+
+
+import astropy.units as u
+from astropy.io import fits
+from astropy.time import Time
 
 from .slowft import slow_FT
 
