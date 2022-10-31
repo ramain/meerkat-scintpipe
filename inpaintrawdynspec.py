@@ -113,12 +113,12 @@ def MosaicDynspec(dynspec, mask, noise, ntchunk, nfchunk, intrinsic=False):
         
         mask_orig = np.copy(mask)
         mask = mask*tprof[:, np.newaxis]
-        
-    for j in range(nfchunk):
-        frange = slice( j*fchunk, (j+1)*fchunk )
+
+    for j in range(nfchunk*2 - 1):
+        frange = slice( j*fchunk//2, (j+2)*fchunk//2 )
         S = SecspecWelch(dyn_filtered[:,frange], ntchunk, tchunk)
-        for i in range(ntchunk):
-            trange = slice( i*tchunk, (i+1)*tchunk )
+        for i in range(ntchunk*2 - 1):
+            trange = slice( i*tchunk//2, (i+2)*tchunk//2 )
         
             print("F{0}/{1}, T{2}/{3}".format(j+1, nfchunk, i+1, ntchunk) )                
  
