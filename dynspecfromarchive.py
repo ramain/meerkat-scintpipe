@@ -140,6 +140,7 @@ def main(raw_args=None):
     # better would be to specify frequency range
     if dyn_clean.shape[1] == 1024:
         dyn_clean = dyn_clean[:, 48:-48]
+        dynspec_off = dynspec_off[:, 48:-48]
         F = F[48:-48]
     
     Funits = F*u.MHz
