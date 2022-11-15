@@ -10,4 +10,4 @@ The main code is ScintPipeline.py, taking either a pulsar archive or filtered dy
 
 Work so far has focussed on the secondary spectra - ACF fitting is currently a work in progress, and should be treated with caution.
 
-Documentation will be added over time, but feel free to send queries to Robert Main (ramain@mpifr-bonn.mpg.de) or Aditya Paratharasy (adityapartha3112@gmail.com)
+Documentation will be added over time, but feel free to send queries to Robert Main (ramain at mpifr-bonn.mpg.de).
