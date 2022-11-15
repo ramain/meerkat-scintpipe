@@ -13,6 +13,8 @@ from scipy.interpolate import interp1d
 from scipy import sparse
 from scipy.linalg import toeplitz
 from scipy.ndimage.filters import gaussian_filter
+from scipy.ndimage import median_filter
+#from skimage.restoration import inpaint
 
 import scintillation.dynspectools.dynspectools as dtools
 import argparse
@@ -93,11 +95,8 @@ def WienerFilter(arr, N, H, Smat=None, SS=None):
     filt = np.reshape((Smat @ H.T @ x).T, (ny, nx))
     return (filt)
 
-
-def MosaicDynspec(dynspec, mask, ntchunk, nfchunk, intrinsic=False, bpass=[0], flag=[0]):
+def MosaicDynspec(dynspec, mask, noise, ntchunk, nfchunk, intrinsic=False):
     """
-    Not clever yet, choose time, freq chunks which cleanly divide!
-    
     Bin dynamic spectra as much as possible while still resolving SS in tau, ft
     """
     
@@ -107,20 +106,13 @@ def MosaicDynspec(dynspec, mask, ntchunk, nfchunk, intrinsic=False, bpass=[0], f
     dyn_filtered = np.copy(dynspec)
     
     if intrinsic:
-        tprof = dynspec.mean(-1)
+        tprof = (dynspec*mask).mean(-1)
         mask[tprof<=0] = 0
         dyn_filtered[tprof<=0, :] = 0
         tprof[tprof<=0] = 0
         
         mask_orig = np.copy(mask)
         mask = mask*tprof[:, np.newaxis]
-        
-    if len(bpass) > 1:
-        mask_orig = np.copy(mask)
-        mask = mask*bpass[np.newaxis, :]
-        dyn_filtered = dyn_filtered*bpass[np.newaxis, :]
-        print("Bandpass correction not yet implemented!!")
-
 
     for j in range(nfchunk*2 - 1):
         frange = slice( j*fchunk//2, (j+2)*fchunk//2 )
@@ -128,19 +120,18 @@ def MosaicDynspec(dynspec, mask, ntchunk, nfchunk, intrinsic=False, bpass=[0], f
         for i in range(ntchunk*2 - 1):
             trange = slice( i*tchunk//2, (i+2)*tchunk//2 )
         
-            print(i, j)                
+            print("F{0}/{1}, T{2}/{3}".format(j+1, nfchunk, i+1, ntchunk) )                
  
             ds = dyn_filtered[trange, frange]
             ms = mask[trange, frange]
-
+            NN = np.copy(noise[trange, frange])*ds.size
             #S = np.abs(np.fft.fft2(ds))**2.0
-            NN = np.ones_like(S)
-                
             filt=WienerFilter(ds, NN, ms, SS=S).real
             dyn_filtered[trange, frange] = filt
             if intrinsic or len(bpass)> 1:
                 mask[trange, frange] = mask_orig[trange, frange]
     return dyn_filtered
+
 
 
 import argparse
@@ -149,25 +140,33 @@ def main(raw_args=None):
 
     parser = argparse.ArgumentParser(description='Inpaint Dynamic Spectra using Wiener Filter')
     parser.add_argument("-fname",  type=str)
-    parser.add_argument("-nt", default=1, type=int)
+    #parser.add_argument("-nt", default=1, type=int)
+    parser.add_argument("-tsize", default=180, type=int)
     parser.add_argument("-nf", default=8, type=int)
-    parser.add_argument("-bpass", default=False, action='store_true')
+    #parser.add_argument("-bpass", default=False, action='store_true')
     parser.add_argument("-intrinsic", default=False, action='store_true')
+    parser.add_argument("-v", default=False, action='store_true')
     
     a = parser.parse_args(raw_args)
     
     infile = a.fname
-    ntchunk = a.nt
+    #ntchunk = a.nt
     nfchunk = a.nf
+    tsize = a.tsize
     intrinsic = a.intrinsic
-    bpass = a.bpass
+    verbose = a.v
+    #bpass = a.bpass
     
-    print("Opening {0}".format(infile))
+    if verbose:
+        print("Opening {0}".format(infile))
     dynspec, dserr, t, F, psrname = dtools.read_psrflux(infile)
-    
+    ntchunk = int(dynspec.shape[0]//tsize) + 1
+    #ntchunk = np.max([1, ntchunk])
+
     prefix = infile.split("dynspec")[0]
     psrfluxname = prefix + 'filtered.dynspec'
-    print("Filtered Spectrum will be written to {0}".format(psrfluxname))
+    if verbose:
+        print("Filtered Spectrum will be written to {0}".format(psrfluxname))
     
     mask = np.ones_like(dynspec)
     mask[abs(dynspec) < 1e-9] = 0
@@ -176,23 +175,32 @@ def main(raw_args=None):
     T = Time(t0, format='mjd')
     
     # Block sizes beyond ~100x100 become too cumbersome
-    print("Dynspec has shape {0}".format(dynspec.shape) )
+    if verbose:
+        print("Dynspec has shape {0}".format(dynspec.shape) )
     
     tchunk = dynspec.shape[0]//ntchunk
     dynspec = dynspec[:tchunk*ntchunk]
+    dserr = dserr[:tchunk*ntchunk]
+    Nstd = np.nanstd(dserr)
+    N = np.ones_like(dynspec) * Nstd**2.0
     mask = mask[:tchunk*ntchunk]
     taxis = t[:tchunk*ntchunk]
     
     dynmask = dynspec*mask
-        
-    print("Using blocks of size {0} nt, {1} nf".format(ntchunk, nfchunk))
+    if verbose:
+        print("Using blocks of size {0} nt, {1} nf".format(ntchunk, nfchunk))
     
     M = np.copy(mask)
     D = np.copy(dynmask)
+    #mask_bh = 1 - mask
+    #inpainted = inpaint.inpaint_biharmonic(D, mask_bh)
+    inpainted = median_filter(D, [10,40])
+    D[mask<0.5] = inpainted[mask<0.5]
+
     mn = np.mean(D)
     D = D / mn
     
-    filt_fill = MosaicDynspec(D, M, ntchunk, nfchunk, intrinsic=intrinsic)
+    filt_fill = MosaicDynspec(D, M, N, ntchunk, nfchunk, intrinsic=intrinsic)
     
     dtools.write_psrflux(filt_fill, M, F, taxis, psrfluxname, psrname=psrname)
     return psrfluxname
