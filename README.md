@@ -1,6 +1,6 @@
 Pipeline for producing scintillation data products from folded pulsar archives from the MeerKAT Thousand Pulsar Array.  Built to work on Ozstar supercomputer for parallel jobs on ~1000 sources.
 
-Pipeline used and described in Main et al. 2022: https://ui.adsabs.harvard.edu/abs/2022MNRAS.tmp.2973M/abstract
+Pipeline used and described in Main et al. 2022: https://doi.org/10.1093/mnras/stac3149
 
 MeerKAT dynamic spectra (raw and filtered) are included on zenodo: https://doi.org/10.5281/zenodo.7261413
 
